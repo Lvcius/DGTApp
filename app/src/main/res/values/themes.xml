@@ -5,7 +5,7 @@
         <item name="colorPrimary">#303030</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">#151515</item>
+        <item name="colorSecondary">#ffffff</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimary</item>
         <!-- Customize your theme here. -->
