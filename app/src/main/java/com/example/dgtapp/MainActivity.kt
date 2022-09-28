@@ -32,6 +32,8 @@ class MainActivity : AppCompatActivity() {
         val etToDo = findViewById<EditText>(R.id.etToDo);
         val ibNewToDoSubmit = findViewById<ImageButton>(R.id.ibNewToDoSubmit);
         etToDo.isVisible = false
+        //remove focus on edittext
+        etToDo.clearFocus()
         ibNewToDoSubmit.isVisible = false
 
         //show input field and submit button when you press "+" (new todo item)
@@ -39,7 +41,6 @@ class MainActivity : AppCompatActivity() {
         ibNewToDoPlus.setOnClickListener {
             etToDo.isVisible = true
             ibNewToDoSubmit.isVisible = true
-            ibNewToDoPlus.isVisible = false
             //force focus on the input field when button pressed
             etToDo.requestFocus()
         }
@@ -59,13 +60,14 @@ class MainActivity : AppCompatActivity() {
         binding.ibNewToDoSubmit.setOnClickListener {
             val title = etToDo.text.toString()
             val todo = ToDo(title, false)
-            todoList.add(todo)
-            adapter.notifyItemInserted(todoList.size - 1)
+            todoList.add(0, todo)
+            adapter.notifyItemInserted(0)
             etToDo.isVisible = false
             ibNewToDoSubmit.isVisible = false
-            ibNewToDoPlus.isVisible = true
             // Clear text
             etToDo.text.clear()
+            //remove focus on edittext when item is submitted
+            etToDo.clearFocus()
         }
 
 
