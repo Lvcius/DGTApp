@@ -66,8 +66,6 @@ class MainActivity : AppCompatActivity() {
             ibNewToDoPlus.isVisible = true
             // Clear text
             etToDo.text.clear()
-            //hide keyboard
-            hidekeyboard()
         }
 
 
