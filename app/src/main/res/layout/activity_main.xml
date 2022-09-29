@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#050505"
+    android:background="@color/almost_black"
     tools:context=".MainActivity"
     tools:ignore="ExtraText">
 
@@ -74,7 +74,7 @@
         android:textColor="@color/white"
         android:textSize="16sp"
         android:textCursorDrawable="@drawable/custom_text_cursor"
-        android:backgroundTint="#3bc2f7"
+        android:backgroundTint="@color/light_blue"
         app:layout_constraintEnd_toStartOf="@+id/ibNewToDoSubmit"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"

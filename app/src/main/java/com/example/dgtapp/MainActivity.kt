@@ -20,6 +20,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // calendarView
+        val calendar
+
         // gets time from Calendar and formats it
         val c: Calendar = Calendar.getInstance()
         val df = SimpleDateFormat("MMM d yyyy")
