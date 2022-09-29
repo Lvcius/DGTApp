@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.dgtapp.databinding.ActivityMainBinding
+import java.io.File
+import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -19,6 +21,21 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        //holds the filtered data for todolist
+        var todoList = mutableListOf<ToDo>()
+
+        //holds all data for todolist
+        var todoListSaved = mutableListOf<ToDo>()
+
+        // function for writing to save file
+        fun write() {
+            val writer = PrintWriter("DGTApp/resources/todos.txt")  // java.io.PrintWriter
+            for (ToDo in todoListSaved) {
+                writer.append("$ToDo")
+            }
+            writer.close()
+        }
 
         // gets time from Calendar and formats it
         val c: Calendar = Calendar.getInstance()
@@ -45,12 +62,6 @@ class MainActivity : AppCompatActivity() {
             etToDo.requestFocus()
         }
 
-        //holds the data of all list items (does not save, will link to database later)
-        var todoList = mutableListOf(
-            //requires an initial placeholder, first value is text, second is checkbox true/false
-            ToDo("placeholder", true)
-        )
-
         //weird adapter stuff???
         val adapter = ToDoAdapter(todoList)
         binding.rvToDo.adapter = adapter
@@ -59,8 +70,9 @@ class MainActivity : AppCompatActivity() {
         //on pressing the submit button on a new list item: update the recyclerview, hide the input field and submit button, make the "+" button visible again
         binding.ibNewToDoSubmit.setOnClickListener {
             val title = etToDo.text.toString()
-            val todo = ToDo(title, false)
+            val todo = ToDo(formattedDate, title, false)
             todoList.add(0, todo)
+            todoListSaved.add(0, todo)
             adapter.notifyItemInserted(0)
             etToDo.isVisible = false
             ibNewToDoSubmit.isVisible = false
