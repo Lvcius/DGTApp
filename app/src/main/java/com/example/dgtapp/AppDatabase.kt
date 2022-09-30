@@ -8,7 +8,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [ToDo::class], autoMigrations = [AutoMigration (from = 1, to = 2), AutoMigration (from = 2, to = 3)], version = 3, exportSchema = true)
+@Database(entities = [ToDo::class], autoMigrations = [AutoMigration (from = 1, to = 2), AutoMigration (from = 2, to = 3), AutoMigration (from = 3, to = 4)], version = 4, exportSchema = true)
 @TypeConverters(todoConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun todoDao(): TodoDao
