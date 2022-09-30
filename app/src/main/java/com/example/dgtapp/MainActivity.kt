@@ -1,5 +1,7 @@
 package com.example.dgtapp
 
+import android.app.Activity
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -7,13 +9,12 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import android.view.inputmethod.InputMethodManager
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.room.Room
+import androidx.recyclerview.widget.RecyclerView
 import com.example.dgtapp.databinding.ActivityMainBinding
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -25,26 +26,26 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)
 
-        val db = AppDatabase.getDatabase(this).todoDao()
-        fun insert(todo: ToDo) {
+        val db by lazy { AppDatabase.getDatabase(this).todoDao() }
+        fun insertTodo(todo: ToDo) {
             lifecycleScope.launch {
                 db.insertTodo(todo)
+            }
+        }
+
+        fun deleteTodo(todo: ToDo) {
+            lifecycleScope.launch {
+                db.deleteTodo(todo)
             }
         }
 
         //holds the filtered data for todolist
         var todoList = mutableListOf<ToDo>()
 
-        //holds all data for todolist
-        var todoListSaved = mutableListOf<ToDo>()
-
-        // function for writing to save file
-        fun write() {
-            val writer = PrintWriter("DGTApp/resources/todos.txt")  // java.io.PrintWriter
-            for (ToDo in todoListSaved) {
-                writer.append("$ToDo")
-            }
-            writer.close()
+        //get all titles from database and input them to todoList
+        var todoListSaved = db.getAll()
+        for (ToDo in todoListSaved) {
+            todoList.add(ToDo)
         }
 
         // gets time from Calendar and formats it
@@ -66,32 +67,59 @@ class MainActivity : AppCompatActivity() {
         //show input field and submit button when you press "+" (new todo item)
         val ibNewToDoPlus = findViewById<ImageButton>(R.id.ibNewToDoPlus);
         ibNewToDoPlus.setOnClickListener {
-            etToDo.isVisible = true
-            ibNewToDoSubmit.isVisible = true
-            //force focus on the input field when button pressed
-            etToDo.requestFocus()
+            if(!etToDo.isVisible) {
+                etToDo.isVisible = true
+                ibNewToDoSubmit.isVisible = true
+                etToDo.requestFocus()
+                etToDo.text.clear()
+                showSoftKeyboard(etToDo)
+            }
+            else {
+                etToDo.isVisible = false
+                ibNewToDoSubmit.isVisible = false
+                hideSoftKeyboard(etToDo)
+            }
         }
 
         //weird adapter stuff???
         val adapter = ToDoAdapter(todoList)
-        binding.rvToDo.adapter = adapter
-        binding.rvToDo.layoutManager = LinearLayoutManager(this)
+        val rvToDo = findViewById<RecyclerView>(R.id.rvToDo)
+        rvToDo.adapter = adapter
+        rvToDo.layoutManager = LinearLayoutManager(this)
 
-        //on pressing the submit button on a new list item: update the recyclerview, hide the input field and submit button, make the "+" button visible again
-        binding.ibNewToDoSubmit.setOnClickListener {
+        //on pressing the submit button on a new list item: update the recyclerview and database, hide the input field and submit button, make the "+" button visible again
+        ibNewToDoSubmit.setOnClickListener {
             val title = etToDo.text.toString()
-            val todo = ToDo(0, title, false)
-            todoList.add(0, todo)
-            todoListSaved.add(0, todo)
-            adapter.notifyItemInserted(0)
+            if (title != "") {
+                val todo = ToDo(0, title = title, isChecked = false)
+                //update recyclerview list
+                todoList.add(0, todo)
+                //update database
+                insertTodo(todo)
+                adapter.notifyItemInserted(0)
+                //scroll to top
+                rvToDo.scrollToPosition(0)
+            }
+
+            //remove focus on edittext when item is submitted and hide the interface & keyboard
+            etToDo.clearFocus()
             etToDo.isVisible = false
             ibNewToDoSubmit.isVisible = false
-            // Clear text
-            etToDo.text.clear()
-            //remove focus on edittext when item is submitted
-            etToDo.clearFocus()
+            hideSoftKeyboard(etToDo)
         }
 
 
+    }
+}
+
+fun Activity.hideSoftKeyboard(editText: EditText){
+    (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).apply {
+        hideSoftInputFromWindow(editText.windowToken, 0)
+    }
+}
+
+fun Activity.showSoftKeyboard(editText: EditText){
+    (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).apply {
+        showSoftInput(editText, 0)
     }
 }

@@ -7,6 +7,13 @@ apply plugin: 'kotlin-kapt'
 android {
     compileSdk 32
 
+    //tells the program where the schema location is
+    kapt {
+        arguments {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
+    }
+
     defaultConfig {
         applicationId "com.example.dgtapp"
         minSdk 21
