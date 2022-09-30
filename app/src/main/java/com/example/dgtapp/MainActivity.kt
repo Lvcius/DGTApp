@@ -7,8 +7,11 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Room
 import com.example.dgtapp.databinding.ActivityMainBinding
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.PrintWriter
 import java.text.SimpleDateFormat
@@ -20,7 +23,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_main)
+
+        val db = AppDatabase.getDatabase(this).todoDao()
+        fun insert(todo: ToDo) {
+            lifecycleScope.launch {
+                db.insertTodo(todo)
+            }
+        }
 
         //holds the filtered data for todolist
         var todoList = mutableListOf<ToDo>()
@@ -70,7 +80,7 @@ class MainActivity : AppCompatActivity() {
         //on pressing the submit button on a new list item: update the recyclerview, hide the input field and submit button, make the "+" button visible again
         binding.ibNewToDoSubmit.setOnClickListener {
             val title = etToDo.text.toString()
-            val todo = ToDo(formattedDate, title, false)
+            val todo = ToDo(0, title, false)
             todoList.add(0, todo)
             todoListSaved.add(0, todo)
             adapter.notifyItemInserted(0)
