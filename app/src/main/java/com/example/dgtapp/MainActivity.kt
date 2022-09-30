@@ -26,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)
 
+        //brings the database in to MainActivity
         val db by lazy { AppDatabase.getDatabase(this).todoDao() }
         fun insertTodo(todo: ToDo) {
             lifecycleScope.launch {
@@ -33,16 +34,18 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        //this function was intended to delete items from the database. I ran into the snag that I need the specific uid of the item in order to delete it (they are randomly generated I believe,)
+        //I ran out of time to actually use it
         fun deleteTodo(todo: ToDo) {
             lifecycleScope.launch {
                 db.deleteTodo(todo)
             }
         }
 
-        //holds the filtered data for todolist
+        //holds the data for todolist. this is what the recyclerview displays
         var todoList = mutableListOf<ToDo>()
 
-        //get all titles from database and input them to todoList
+        //gets all titles from database and input them to todoList
         var todoListSaved = db.getAll()
         for (ToDo in todoListSaved) {
             todoList.add(ToDo)
@@ -64,24 +67,31 @@ class MainActivity : AppCompatActivity() {
         etToDo.clearFocus()
         ibNewToDoSubmit.isVisible = false
 
-        //show input field and submit button when you press "+" (new todo item)
+        //the code for the "+" new item button
+        //basically, sets the edittext and submitbutton to visible if they're invisible, and makes the invisible if they are visible
         val ibNewToDoPlus = findViewById<ImageButton>(R.id.ibNewToDoPlus);
         ibNewToDoPlus.setOnClickListener {
             if(!etToDo.isVisible) {
                 etToDo.isVisible = true
                 ibNewToDoSubmit.isVisible = true
+                //forces focus on the edittext
                 etToDo.requestFocus()
+                //clears the edittext field
                 etToDo.text.clear()
+                //makes the keyboard come up automagically
                 showSoftKeyboard(etToDo)
             }
             else {
                 etToDo.isVisible = false
                 ibNewToDoSubmit.isVisible = false
+                //force removes focus from the edittext (a bit redundant since the keyboard gets hidden)
+                etToDo.clearFocus()
+                //hides the keyboard
                 hideSoftKeyboard(etToDo)
             }
         }
 
-        //weird adapter stuff???
+        //tells the recyclerview to draw from the todoList list
         val adapter = ToDoAdapter(todoList)
         val rvToDo = findViewById<RecyclerView>(R.id.rvToDo)
         rvToDo.adapter = adapter
@@ -111,13 +121,14 @@ class MainActivity : AppCompatActivity() {
 
     }
 }
-
+//this function hides the keyboard
 fun Activity.hideSoftKeyboard(editText: EditText){
     (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).apply {
         hideSoftInputFromWindow(editText.windowToken, 0)
     }
 }
 
+//this function makes the keyboard show
 fun Activity.showSoftKeyboard(editText: EditText){
     (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).apply {
         showSoftInput(editText, 0)
